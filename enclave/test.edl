@@ -1,0 +1,7 @@
+enclave {
+  trusted {
+    public int test_function1(uint8_t input);
+  };
+  untrusted {
+  };
+};
