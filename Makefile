@@ -23,7 +23,7 @@ all: $(DEST)/test.signed.so $(DEST)/app
 #  Build App
 #  -----------------------------------------------------
 
-APP_INC := -I$(SGX_SDK)/include -Ienclave -Iutils
+APP_INC := -I$(SGX_SDK)/include -IEnclave -Iutils
 APP_C_FLAGS := $(APP_INC)
 APP_CPP_FLAGS := $(APP_INC) -std=c++11
 APP_LINK_FLAGS := -L$(SGX_LIB_PATH) -l$(URTS_LIB) -pthread
@@ -45,7 +45,7 @@ $(APP_ENCLAVE_OBJ): $(APP_ENCLAVE_SRC)
 	@echo $^ "=>" $@
 	@$(CC) -o $@ -c $< $(ENCLAVE_C_FLAGS) 
 
-$(APP_ENCLAVE_SRC): enclave/test.edl
+$(APP_ENCLAVE_SRC): Enclave/test.edl
 	@echo $^ "=>" $(APP_ENCLAVE_SRC)
 	@$(SGX_EDGER8R) $^ --untrusted --untrusted-dir app
 	
@@ -72,33 +72,32 @@ ENCLAVE_LINK_FLAGS := -Wl,--no-undefined -L$(SGX_LIB_PATH) \
 	-Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
 	-Wl,-pie,-eenclave_entry -Wl,--export-dynamic \
 	-Wl,--defsym,__ImageBase=0 \
-	-Wl,--version-script=enclave/test.lds
+	-Wl,--version-script=Enclave/test.lds
 
-ENCLAVE_TRUSTED_SRC := enclave/test_t.c enclave/test_t.h
-ENCLAVE_SRC := $(ENCLAVE_TRUSTED_SRC) enclave/test.c
+ENCLAVE_TRUSTED_SRC := Enclave/test_t.c Enclave/test_t.h
+ENCLAVE_SRC := $(ENCLAVE_TRUSTED_SRC) Enclave/test.c
 ENCLAVE_OBJ := $(patsubst %.c, %.o, $(ENCLAVE_SRC))
 
-$(DEST)/test.signed.so: $(DEST)/test.so enclave/test.config.xml
+$(DEST)/test.signed.so: $(DEST)/test.so Enclave/test.config.xml
 	@mkdir -p build
 	@echo $< "=>" $@
-	@$(SGX_SIGN) sign -key ${SIGNER_KEY_FILE} -enclave $< -out $@ -config enclave/test.config.xml
+	@$(SGX_SIGN) sign -key ${SIGNER_KEY_FILE} -enclave $< -out $@ -config Enclave/test.config.xml
 
 $(DEST)/test.so: $(ENCLAVE_OBJ)
 	@mkdir -p build
 	@echo $^ "=>" $@
 	@$(CC) -o $@ $^ $(ENCLAVE_INC) $(ENCLAVE_LINK_FLAGS)
 
-enclave/%.o: enclave/%.c
+Enclave/%.o: Enclave/%.c
 	@echo $^ "=>" $@
 	@$(CC) -o $@ -c $(ENCLAVE_C_FLAGS) $<
 
-$(ENCLAVE_TRUSTED_SRC): enclave/test.edl
+$(ENCLAVE_TRUSTED_SRC): Enclave/test.edl
 	@echo $^ "=>" $(ENCLAVE_TRUSTED_SRC)
-	@$(SGX_EDGER8R) $^ --trusted --trusted-dir enclave
-
+	@$(SGX_EDGER8R) $^ --trusted --trusted-dir Enclave
 
 clean:
 	@rm -f build/*
 	@rm -f app/*.o app/test_u.*
-	@rm -rf enclave/*.o enclave/test_t.*
+	@rm -rf Enclave/*.o Enclave/test_t.*
 	@rm -f app/*.o

@@ -3,12 +3,6 @@
 #include <cstdio>
 #include <cstring>
 
-/* Error code returned by sgx_create_enclave */
-typedef struct _sgx_errlist_t {
-    sgx_status_t err;
-    const char *msg;
-    const char *sug; /* Suggestion */
-} sgx_errlist_t;
 
 sgx_errlist_t sgx_errlist[] = {
     {

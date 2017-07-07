@@ -1,0 +1,7 @@
+enclave {
+  trusted {
+    public int ecall_enclave_visit_outside_memory([user_check]uint8_t *data, size_t len);
+  };
+  untrusted {
+  };
+};
