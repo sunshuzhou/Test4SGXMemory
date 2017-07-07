@@ -1,17 +1,17 @@
 # Test4MemoryCpy
 
 
-- Enclave can see and operate data in the main memory.
+## Enclave can see and operate data in the main memory
 
 In `test.edl`, we define a trusted function:
 
     public int ecall_enclave_visit_outside_memory([user_check]uint8_t *data, size_t len);
 
-The `user_check` will discourage the memory copy operation from enclave to app (specified by `out`), or from app to enclave (specified by `in`). So we need to check whether the `data` in the function is inside or outside enclave. Here is the code of it.
+The `user_check` will discourage the memory copy operation from enclave to app (specified by `out`), or from app to enclave (specified by `in`). So we need to manually check whether the `data` in the function is inside or outside enclave. Here is the code of it.
 
     int ecall_enclave_visit_outside_memory(uint8_t *data, size_t len) {
       if (sgx_is_outside_enclave(data, len)) {
-        // Since it is in the main memory, we can consider it as unsafe.
+        // Since it is in the main memory, we can assume it's unsafe.
         // Simple put a sequence to it.
         for (int i = 0; i < len; i++) {
           data[i] = i;
